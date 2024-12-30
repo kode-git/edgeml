@@ -14,11 +14,11 @@ export class PerformanceMonitorObserver implements Observer {
         if (ramUsage > 2000) {
             Logger.warn(`high ram usage detected: ${ramUsage.toFixed(2)} mb`);
         }
+        await this.recordUsage(cpuUsage, ramUsage);
     }
         
     /**
      * This method save an history file with the record of container RAM and CPU
-     * @deprecated since v1.0.1
      * @param cpuUsage is the current CPU sample in %
      * @param ramUsage is the current RAM sample in MB
      */
