@@ -10,19 +10,28 @@ class Mode(Enum):
     RESOURCE = 1
     THROUGHPUT = 2
 
+res_mps_model = joblib.load("optimal_mps_model.pkl")
+res_size_model = joblib.load("optimal_size_model.pkl")
+
+
+throughput_mps_model = joblib.load("throughput_opt_message_sec.pkl")
+throughput_size_model = joblib.load("throughput_opt_message_size.pkl")
+
+
+    
 def predict_values(features, type : Mode):
 
     if type == Mode.RESOURCE:
         # features are like np.array([[5.0, 135.0, 150, 2048]])  # [cpuUsage, ramUsage, requestPerSec, bytesPerSec]
-        mps_model = joblib.load("optimal_mps_model.pkl")
-        size_model = joblib.load("optimal_size_model.pkl")
 
-        predicted_mps = mps_model.predict(features)
-        predicted_size = size_model.predict(features)
+
+        predicted_mps = res_mps_model.predict(features)
+        predicted_size = res_size_model.predict(features)
 
         return predicted_mps, predicted_size
     else:
         # Enum.THROUGHPUT is defined as default mode
+
         return 0,0 # TODO: Define throughput mode
 
 def start_model_server(host='127.0.0.1', port=65432, type=Mode.THROUGHPUT):
@@ -44,7 +53,7 @@ def start_model_server(host='127.0.0.1', port=65432, type=Mode.THROUGHPUT):
                     predicted_mps, predicted_size = predict_values(features, type)
 
                     # Send back the response with the predicted values
-                    
+
                     response = struct.pack('ff', predicted_mps, predicted_size)
                     client_socket.sendall(response)
                     Logger.info(f"Sent predictions: {predicted_mps}, {predicted_size}")
