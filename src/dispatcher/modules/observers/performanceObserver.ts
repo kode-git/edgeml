@@ -8,10 +8,25 @@ const historyFile = path.join('/app/data', 'record.json');
 export class PerformanceMonitorObserver implements Observer {
 
     async update(cpuUsage: number, ramUsage: number): Promise<void> {
-        if (cpuUsage > 80) {
+        let maxRam, maxCpu : number;
+
+        maxRam = process.env.MAX_RAM ? parseInt(process.env.MAX_RAM) : 85
+        maxCpu = process.env.MAX_CPU ? parseInt(process.env.MAX_CPU) : 85
+
+        if (Number.isNaN(maxCpu)) {
+            Logger.warn("Input max CPU is not a valid number, set to default value")
+            maxCpu = 85
+        }
+
+        if(Number.isNaN(maxRam)) {
+            Logger.warn("Input max RAM is not a valid number, set to default value")
+            maxCpu = 85
+        }
+
+        if (cpuUsage > maxCpu) {
             Logger.warn(`high cpu usage detected: ${cpuUsage}%`);
         }
-        if (ramUsage > 2000) {
+        if (ramUsage > maxRam) {
             Logger.warn(`high ram usage detected: ${ramUsage.toFixed(2)} mb`);
         }
         await this.recordUsage(cpuUsage, ramUsage);

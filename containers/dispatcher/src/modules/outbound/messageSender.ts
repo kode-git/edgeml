@@ -1,6 +1,8 @@
 // SendMessageCommand.ts
 import mqtt from 'mqtt';
 import { MessageSenderParams } from './messageSenderParams';
+import { MetricPayload } from './metricsPayload';
+import { Logger } from '../utils/logger';
 
 
 export class MessageSender {
@@ -8,6 +10,12 @@ export class MessageSender {
 
   constructor(private readonly params: MessageSenderParams) {
     this.client = mqtt.connect(params.brokerUrl);
+  }
+
+  publish(topic : string, message : MetricPayload) {
+    this.client.publish(topic, JSON.stringify(message), (err : any) => {
+      if(err) Logger.error(`Error during send metrics: ${err}`);
+    });
   }
 
   async execute(): Promise<void> {

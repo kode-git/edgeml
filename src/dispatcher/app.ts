@@ -16,23 +16,43 @@ import { SystemUsageTracker } from './modules/performance/systemUsageTracker';
 import { LoggingObserver } from './modules/observers/loggingObserver';
 import { PerformanceMonitorObserver } from './modules/observers/performanceObserver';
 import { Mode } from './modules/mode/mode';
+import { IMqttConfig } from './modules/commands/mqttConfig';
+import { MqttConsumer } from './modules/commands/commandsConsumer';
+import { CommandPayload } from './modules/commands/commandPayload';
 
 
 const app = express();
 
 app.use(express.json());
 
+// environment variables
+const BROKER_URL = process.env.BROKER_URL ? process.env.BROKER_URL + "" : "mqtt:test.mosquitto.org:8883"
+const TELEMETRY_TOPIC = process.env.TELEMETRY_TOPIC ? process.env.TELEMETRY + "" : "#"
+const METRIC_TOPIC = process.env.METRIC_TOPIC ? process.env.METRIC + "" : "#"
+const COMMANDS_TOPIC = process.env.COMMANDS_TOPIC ? process.env.COMMANDS + "" : "commands"
+
+
+// configuration for internal command client
+const config: IMqttConfig = {
+  brokerUrl: BROKER_URL,
+  port: 8883,
+  topic: COMMANDS_TOPIC,
+};
+
+let mqttConsumer : MqttConsumer;
+
+
 const trackerFrequency : number = 1 * 1000;
-const rateLimiter = new RateLimiter("mqtt:test.mosquitto.org:8883", "#");
+// configuration for delimiter is inside the class definition
+const rateLimiter = new RateLimiter(BROKER_URL, TELEMETRY_TOPIC, METRIC_TOPIC);
 
 let optimizeInterval : NodeJS.Timeout; 
+let MODE : Mode = Mode.Throughput; // current mode, default value is simple
 
+// Data inbound
 app.post('/', (req: Request, res: Response) => {
   const receivedData = JSON.parse(req.body.message);  
-
-
   rateLimiter.receiveData(receivedData);
-  
   res.json({ status : 200 });
 });
 
@@ -54,7 +74,35 @@ app.listen(8080, () => {
     optimizeInterval = setInterval(async () => {
       let ram : number = await tracker.getRamUsage()
       let cpu : number = await tracker.getCpuUsage()
-      rateLimiter.update(Mode.Simple, ram, cpu)
+      rateLimiter.update(MODE, ram, cpu)
     }, 1000 * 10) // Optimization over time in 10 seconds
+
+
+  
+    mqttConsumer = new MqttConsumer(config);
+  
+    mqttConsumer.start((topic: string, message: string) => {
+        try {
+           let data : CommandPayload = JSON.parse(message);
+           process.env.MAX_RAM = data.maxRAM + "";
+           process.env.MAX_CPU = data.maxCPU + "";
+           switch(data.modeML){
+            case "resource":
+              MODE = Mode.Resource; break;
+            case "throughput": 
+              MODE = Mode.Throughput; break;
+            default:
+              MODE = Mode.Simple
+           }
+
+           Logger.debug("Setup Mode: " + MODE)
+
+        } catch(e) {
+          Logger.error("Error during consumed command message, not valid.")
+        }
+
+    });
+  
+  
 
 });

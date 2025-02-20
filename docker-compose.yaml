@@ -26,6 +26,17 @@ services:
     networks:
       - app-network
 
+  model:
+    build:
+      context: .
+      dockerfile: containers/model/Dockerfile
+    restart: always
+    ports:
+      - "65432:65432"  
+      - "65433:65433"
+    networks:
+      - app-network
+      
 networks:
   app-network:
     driver: bridge

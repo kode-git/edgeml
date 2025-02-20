@@ -1,10 +1,12 @@
 import socket
 import struct
-import joblib
 import numpy as np
 from enum import Enum
 import multiprocessing
 from utils.logger import Logger
+import pandas as pd
+import pickle
+import joblib
 
 class Mode(Enum):
     RESOURCE = 1
@@ -17,22 +19,29 @@ res_size_model = joblib.load("optimal_size_model.pkl")
 throughput_mps_model = joblib.load("throughput_opt_message_sec.pkl")
 throughput_size_model = joblib.load("throughput_opt_message_size.pkl")
 
+scaler = None
 
+with open('scaler.pkl', 'rb') as f:
+    scaler = pickle.load(f)
     
 def predict_values(features, type : Mode):
 
     if type == Mode.RESOURCE:
         # features are like np.array([[5.0, 135.0, 150, 2048]])  # [cpuUsage, ramUsage, requestPerSec, bytesPerSec]
 
-
         predicted_mps = res_mps_model.predict(features)
         predicted_size = res_size_model.predict(features)
 
         return predicted_mps, predicted_size
     else:
-        # Enum.THROUGHPUT is defined as default mode
+        features_pd = pd.DataFrame([features])
 
-        return 0,0 # TODO: Define throughput mode
+        input_feats = scaler.transform(features_pd[features])
+
+        predicted_mps = throughput_mps_model.predict(input_feats)
+        predicted_size = throughput_size_model.predict(input_feats)
+
+        return predicted_mps, predicted_size
 
 def start_model_server(host='127.0.0.1', port=65432, type=Mode.THROUGHPUT):
 
@@ -63,16 +72,22 @@ def start_model_server(host='127.0.0.1', port=65432, type=Mode.THROUGHPUT):
 
 if __name__ == '__main__':
 
-    res_thread =  multiprocessing.Process(target=start_model_server, args=("127.0.0.1", 65432, Mode.RESOURCE))
-    thr_thread = multiprocessing.Process(target=start_model_server, args=("127.0.0.1", 65433, Mode.THROUGHPUT))
+    Logger.info("Starting model servers")
+
+    res_thread =  multiprocessing.Process(target=start_model_server, args=("0.0.0.0", 65432, Mode.RESOURCE))
+    thr_thread = multiprocessing.Process(target=start_model_server, args=("0.0.0.0", 65433, Mode.THROUGHPUT))
 
     res_thread.start()
     thr_thread.start()
 
     # optimal joining process for the blocking operations on both servers
 
+    Logger.info("Joining model interfaces")
     res_thread.join()
     thr_thread.join()
+
+    Logger.info("Server estabilished, listening for new requests...")
+    print("Started")
 
 
 

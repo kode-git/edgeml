@@ -8,6 +8,7 @@ import { MessageSender } from "../outbound/messageSender";
 import { Logger } from "../utils/logger";
 import { PerformanceTracker } from "./performanceTracker";
 import * as fs from 'fs';
+import { SocketClient } from "../socket/client";
 
 // performance history file is unique for all the rate limiters
 
@@ -20,15 +21,23 @@ export class RateLimiter {
   private outboundMessageSize: number;
   private outboundMessagePerSec: number;
   private readonly brokerUrl: string;
-  private readonly topic: string;
-
-  constructor(brokerUrl: string, topic: string) {
+  private readonly telemetryTopic: string;
+  private readonly metricTopic : string;
+  private readonly clientResource : SocketClient;
+  private readonly clientThroughput : SocketClient;
+  
+  constructor(brokerUrl: string, telemetryTopic: string, metricTopic : string) {
     this.outboundMessageSize = 2000;
     this.outboundMessagePerSec = 0;
     this.performanceTracker = new PerformanceTracker();
     this.optimizer = new BasicModel();
     this.brokerUrl = brokerUrl;
-    this.topic = topic;
+    this.telemetryTopic = telemetryTopic;
+    this.metricTopic = metricTopic;
+    this.clientResource = new SocketClient("edgeml-model-1.edgeml_app-network", 65432);
+    this.clientThroughput= new SocketClient("edgeml-model-1.edgeml_app-network", 65433);
+    this.clientResource.start();
+    this.clientThroughput.start();
   }
 
   receiveData(data: string): void {
@@ -50,6 +59,7 @@ export class RateLimiter {
      * @param bytesPerSec is the current bytes inbound that the dispatcher have in bytes/s
      * @param bufferSize is the size of the buffer or poll of data that the dispatcher needs to flush off
      */
+    
     static async recordUsage(requestPerSec: number, bytesPerSec: number, bufferSize: number) : Promise<void> {
         const timestamp = new Date().toISOString();
         const usageData = { timestamp, requestPerSec, bytesPerSec, bufferSize };
@@ -79,6 +89,8 @@ export class RateLimiter {
 
   public async update(mode: Mode, ram: number, cpu: number): Promise<void> {
     let optimalValues: OptimizationResult;
+    let data : Float64Array<ArrayBuffer>
+    let buffer : Buffer
 
     switch (mode) {
       case Mode.Simple:
@@ -87,29 +99,43 @@ export class RateLimiter {
         this.outboundMessagePerSec = optimalValues.M;
         break;
       case Mode.Resource:
-        // TODO: optimizer per resources (minimize resources)
+        data = new Float64Array([cpu, ram, this.performanceTracker.requestPerSec, this.performanceTracker.BytesPerSec]); // [cpuUsage, ramUsage, requestPerSec, bytesPerSec]
+        buffer = Buffer.from(data.buffer)
+        this.clientResource.sendData(buffer)
         break;
       case Mode.Throughput:
-        // TODO: Optimize per throughput (maximize throughput)
+        data = new Float64Array([cpu, ram, this.performanceTracker.requestPerSec, this.performanceTracker.BytesPerSec]); // [cpuUsage, ramUsage, requestPerSec, bytesPerSec]
+        buffer = Buffer.from(data.buffer)
+        this.clientThroughput.sendData(buffer)
         break;
       default:
         Logger.error("Unknown mode, no effect defined");
         break;
     }
 
-    await this.startSending();
+    await this.startSending(cpu, ram);
   }
 
-  private async startSending(): Promise<void> {
+  private async startSending(cpu : number, ram : number): Promise<void> {
     const sendMessageCommand = new MessageSender({
       buffer: this.buffer,
       outboundMessageSize: this.outboundMessageSize,
       messagePerSec: this.outboundMessagePerSec,
       brokerUrl: this.brokerUrl,
-      topic: this.topic
+      topic: this.telemetryTopic
     });
 
     await sendMessageCommand.execute();
+    sendMessageCommand.publish(this.metricTopic, {
+      currentCPU: cpu,
+      currentRAM: ram,
+      throughput: this.calculateThroughput(this.outboundMessagePerSec, this.outboundMessageSize)
+    })
+
+  }
+
+  calculateThroughput(messagePerSec : number, messageSize : number) :  number {
+    return messagePerSec * messageSize // total bytes / amount of time (1s), the throughput is defined at seconds level
   }
 }
 

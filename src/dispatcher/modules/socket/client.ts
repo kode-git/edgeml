@@ -1,12 +1,12 @@
 import * as net from "net";
 import { Logger } from "../utils/logger";
-class SocketClient {
+export class SocketClient {
 
     private readonly host: string
     private readonly port: number;
     private client: net.Socket;
 
-    constructor(host: string = "127.0.0.1", port: number = 65432) {
+    constructor(host: string = "edgeml-model-1.edgeml_app-network", port: number = 65432) {
         this.host = host;
         this.port = port;
         this.client = new net.Socket();
@@ -91,11 +91,4 @@ class SocketClient {
     }
 }
 
-const client = new SocketClient("127.0.0.1", 65432);
 
-Logger.info('Starting client');
-client.start();
-
-setInterval(() => {
-    client.sendData(); // Sends the default sample data
-}, 1000);
