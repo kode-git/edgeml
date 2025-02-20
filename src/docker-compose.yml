@@ -1,6 +1,6 @@
 include:
   - ditto/docker-compose.yml
-  - gateway/docker-compose.yml
+  - gateway/docker-compose.yaml
 
 services:
   mosquitto:
@@ -26,5 +26,3 @@ services:
       timeout: 10s
       retries: 3
       start_period: 30s
-volumes:
-  usage-data:

@@ -8,8 +8,11 @@ services:
     volumes:
       - usage-data:/app/data
     restart: always
+    depends_on:
+      - mosquitto
+      - connectivity
     ports:
-      - "8081:8081"
+      - "8090:8090"
     networks:
       default:
         aliases:
@@ -25,6 +28,7 @@ services:
       replicas: 2
     depends_on:
       - dispatcher  # Ensure the dispatcher is up before starting the driver
+      - connectivity
     networks:
       default:
         aliases:
@@ -35,6 +39,8 @@ services:
       context: .
       dockerfile: containers/model/Dockerfile
     restart: always
+    depends_on:
+      - connectivity
     ports:
       - "65432:65432"  
       - "65433:65433"

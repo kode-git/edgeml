@@ -86,7 +86,7 @@ services:
       test: curl --fail `hostname`:7626/alive || exit 1
       interval: 30s
       timeout: 15s
-      retries: 4
+      retries: 7
       start_period: 120s
     logging:
       options:
@@ -121,7 +121,7 @@ services:
       test: curl --fail `hostname`:7626/alive || exit 1
       interval: 30s
       timeout: 15s
-      retries: 4
+      retries: 7
       start_period: 120s
     logging:
       options:
@@ -156,7 +156,7 @@ services:
       test: curl --fail `hostname`:7626/alive || exit 1
       interval: 30s
       timeout: 15s
-      retries: 4
+      retries: 7
       start_period: 120s
     logging:
       options:
@@ -193,7 +193,7 @@ services:
       test: curl --fail `hostname`:7626/alive || exit 1
       interval: 30s
       timeout: 15s
-      retries: 4
+      retries: 7
       start_period: 120s
     logging:
       options:
@@ -232,7 +232,7 @@ services:
       test: curl --fail `hostname`:7626/alive || exit 1
       interval: 30s
       timeout: 15s
-      retries: 4
+      retries: 7
       start_period: 120s
     logging:
       options:

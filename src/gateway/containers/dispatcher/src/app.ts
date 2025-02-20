@@ -56,8 +56,8 @@ app.post('/', (req: Request, res: Response) => {
   res.json({ status: 200 });
 });
 
-app.listen(8081, () => {
-  Logger.info('Server is running on http://localhost:8081');
+app.listen(8090, () => {
+  Logger.info('Server is running on http://localhost:8090');
 
   const tracker = new SystemUsageTracker(trackerFrequency);
 
