@@ -9,9 +9,11 @@ services:
       - usage-data:/app/data
     restart: always
     ports:
-      - "8080:8080"  # Expose port 8080 for external access
+      - "8081:8081"
     networks:
-      - app-network
+      default:
+        aliases:
+          - ditto-cluster
 
   driver:
     build:
@@ -24,7 +26,9 @@ services:
     depends_on:
       - dispatcher  # Ensure the dispatcher is up before starting the driver
     networks:
-      - app-network
+      default:
+        aliases:
+          - ditto-cluster
 
   model:
     build:
@@ -35,11 +39,9 @@ services:
       - "65432:65432"  
       - "65433:65433"
     networks:
-      - app-network
-      
-networks:
-  app-network:
-    driver: bridge
+      default:
+        aliases:
+          - ditto-cluster
 
 volumes:
   usage-data:

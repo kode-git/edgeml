@@ -39,70 +39,70 @@ const config: IMqttConfig = {
   topic: COMMANDS_TOPIC,
 };
 
-let mqttConsumer : MqttConsumer;
+let mqttConsumer: MqttConsumer;
 
 
-const trackerFrequency : number = 1 * 1000;
+const trackerFrequency: number = 1 * 1000;
 // configuration for delimiter is inside the class definition
 const rateLimiter = new RateLimiter(BROKER_URL, TELEMETRY_TOPIC, METRIC_TOPIC);
 
-let optimizeInterval : NodeJS.Timeout; 
-let MODE : Mode = Mode.Throughput; // current mode, default value is simple
+let optimizeInterval: NodeJS.Timeout;
+let MODE: Mode = Mode.Throughput; // current mode, default value is simple
 
 // Data inbound
 app.post('/', (req: Request, res: Response) => {
-  const receivedData = JSON.parse(req.body.message);  
+  const receivedData = JSON.parse(req.body.message);
   rateLimiter.receiveData(receivedData);
-  res.json({ status : 200 });
+  res.json({ status: 200 });
 });
 
-app.listen(8080, () => {
-    Logger.info('Server is running on http://localhost:8080');
+app.listen(8081, () => {
+  Logger.info('Server is running on http://localhost:8081');
 
-    const tracker = new SystemUsageTracker(trackerFrequency); 
-    
-    const logger = new LoggingObserver();
-    const performanceMonitor = new PerformanceMonitorObserver();
+  const tracker = new SystemUsageTracker(trackerFrequency);
 
-    tracker.addObserver(logger);
-    tracker.addObserver(performanceMonitor);
+  const logger = new LoggingObserver();
+  const performanceMonitor = new PerformanceMonitorObserver();
 
-    tracker.startTracking();
+  tracker.addObserver(logger);
+  tracker.addObserver(performanceMonitor);
 
-    rateLimiter.startInboundTracking();
+  tracker.startTracking();
 
-    optimizeInterval = setInterval(async () => {
-      let ram : number = await tracker.getRamUsage()
-      let cpu : number = await tracker.getCpuUsage()
-      rateLimiter.update(MODE, ram, cpu)
-    }, 1000 * 10) // Optimization over time in 10 seconds
+  rateLimiter.startInboundTracking();
+
+  optimizeInterval = setInterval(async () => {
+    let ram: number = await tracker.getRamUsage()
+    let cpu: number = await tracker.getCpuUsage()
+    rateLimiter.update(MODE, ram, cpu)
+  }, 1000 * 10) // Optimization over time in 10 seconds
 
 
-  
-    mqttConsumer = new MqttConsumer(config);
-  
-    mqttConsumer.start((topic: string, message: string) => {
-        try {
-           let data : CommandPayload = JSON.parse(message);
-           process.env.MAX_RAM = data.maxRAM + "";
-           process.env.MAX_CPU = data.maxCPU + "";
-           switch(data.modeML){
-            case "resource":
-              MODE = Mode.Resource; break;
-            case "throughput": 
-              MODE = Mode.Throughput; break;
-            default:
-              MODE = Mode.Simple
-           }
 
-           Logger.debug("Setup Mode: " + MODE)
+  mqttConsumer = new MqttConsumer(config);
 
-        } catch(e) {
-          Logger.error("Error during consumed command message, not valid.")
-        }
+  mqttConsumer.start((topic: string, message: string) => {
+    try {
+      let data: CommandPayload = JSON.parse(message);
+      process.env.MAX_RAM = data.maxRAM + "";
+      process.env.MAX_CPU = data.maxCPU + "";
+      switch (data.modeML) {
+        case "resource":
+          MODE = Mode.Resource; break;
+        case "throughput":
+          MODE = Mode.Throughput; break;
+        default:
+          MODE = Mode.Simple
+      }
 
-    });
-  
-  
+      Logger.debug("Setup Mode: " + MODE)
+
+    } catch (e) {
+      Logger.error("Error during consumed command message, not valid.")
+    }
+
+  });
+
+
 
 });
