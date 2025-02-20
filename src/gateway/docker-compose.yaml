@@ -16,7 +16,7 @@ services:
     networks:
       default:
         aliases:
-          - ditto-cluster
+          - edgeml-cluster
 
   driver:
     build:
@@ -32,7 +32,7 @@ services:
     networks:
       default:
         aliases:
-          - ditto-cluster
+          - edgeml-cluster
 
   model:
     build:
@@ -47,7 +47,7 @@ services:
     networks:
       default:
         aliases:
-          - ditto-cluster
+          - edgeml-cluster
 
 volumes:
   usage-data:
