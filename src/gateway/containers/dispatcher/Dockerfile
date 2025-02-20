@@ -8,6 +8,6 @@ COPY ./src/dispatcher/ ./
 
 RUN npm install && npm install -g tsx
 
-EXPOSE 8080
+EXPOSE 8090
 
 CMD ["tsx", "app.ts"]

@@ -1,5 +1,13 @@
 export interface CommandPayload {
-    maxCPU : number,
-    modeML : string, 
-    maxRAM: number
+    header: any,
+    path: string,
+    revision: number,
+    timestamp: string,
+    topic: string,
+    value: {
+        maxCPU: number,
+        modeML: string,
+        maxRAM: number
+    }
 }
+

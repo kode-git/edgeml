@@ -26,10 +26,10 @@ const app = express();
 app.use(express.json());
 
 // environment variables
-const BROKER_URL = process.env.BROKER_URL ? process.env.BROKER_URL + "" : "mqtt:test.mosquitto.org:8883"
-const TELEMETRY_TOPIC = process.env.TELEMETRY_TOPIC ? process.env.TELEMETRY + "" : "#"
-const METRIC_TOPIC = process.env.METRIC_TOPIC ? process.env.METRIC + "" : "#"
-const COMMANDS_TOPIC = process.env.COMMANDS_TOPIC ? process.env.COMMANDS + "" : "commands"
+const BROKER_URL = process.env.BROKER_URL ? process.env.BROKER_URL + "" : "mqtt:mosquitto:8883"
+const TELEMETRY_TOPIC = process.env.TELEMETRY_TOPIC ? process.env.TELEMETRY + "" : "data"
+const METRIC_TOPIC = process.env.METRIC_TOPIC ? process.env.METRIC + "" : "source/adaptive_twin/org.eclipse.ditto:adaptive_twin"
+const COMMANDS_TOPIC = process.env.COMMANDS_TOPIC ? process.env.COMMANDS + "" : "adaptive_twin/org.eclipse.ditto:adaptive_twin/events"
 
 
 // configuration for internal command client
@@ -84,9 +84,9 @@ app.listen(8090, () => {
   mqttConsumer.start((topic: string, message: string) => {
     try {
       let data: CommandPayload = JSON.parse(message);
-      process.env.MAX_RAM = data.maxRAM + "";
-      process.env.MAX_CPU = data.maxCPU + "";
-      switch (data.modeML) {
+      process.env.MAX_RAM = data.value.maxRAM + "";
+      process.env.MAX_CPU = data.value.maxCPU + "";
+      switch (data.value.modeML) {
         case "resource":
           MODE = Mode.Resource; break;
         case "throughput":

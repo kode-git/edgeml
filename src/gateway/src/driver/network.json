@@ -1,5 +1,5 @@
 {
-    "hostname" : "dispatcher",
-    "port" : 8080,
-    "path" : ""
+    "hostname": "dispatcher",
+    "port": 8090,
+    "path": ""
 }
