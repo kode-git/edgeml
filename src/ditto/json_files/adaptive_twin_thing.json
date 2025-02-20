@@ -1,0 +1,24 @@
+{
+  "thingId": "org.eclipse.ditto:adaptive_twin",
+  "policyId": "org.eclipse.ditto:adaptive_twin_policy",
+  "attributes": {
+    "name": "Adaptive Twin",
+    "description": "Digital Twin for throughput optimization"
+  },
+  "features": {
+    "configML": {
+      "properties": {
+        "modeML": "simple",
+        "maxCPU": 85,
+        "maxRAM": 85
+      }
+    },
+    "deviceResources": {
+      "properties": {
+        "currentCPU": 0,
+        "currentRAM": 0,
+        "throughput": 0
+      }
+    }
+  }
+}

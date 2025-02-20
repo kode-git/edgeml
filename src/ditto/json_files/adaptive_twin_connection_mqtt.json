@@ -1,0 +1,53 @@
+{
+  "connectionType": "mqtt",
+  "connectionStatus": "open",
+  "uri": "tcp://mosquitto:1883",
+  "failoverEnabled": true,
+  "clientCount": 1,
+  "validateCertificates": false,
+  "specificConfig": {
+    "clientId": "ditto"
+  },
+  "sources": [
+    {
+      "addresses": [
+        "source/adaptive_twin/#"
+      ],
+      "nota_address": "Indica il topic MQTT dove Ditto ascolta in attesa di comandi o messaggi dai device",
+      "authorizationContext": [
+        "nginx:ditto",
+        "ditto:ditto"
+      ],
+      "qos": 0,
+      "filters": []
+    }
+  ],
+  "targets": [
+    {
+      "address": "adaptive_twin/{{thing:id}}/events",
+      "nota_address": "Indica il topic MQTT dove verranno pubblicati tutti gli eventi di Ditto",
+      "topics": [
+        "_/_/things/twin/events"
+      ],
+      "nota_topics": "Indica quali tipi di messaggi di Ditto verranno pubblicati sull'address ('_/_/things/twin/commands' non valido",
+      "authorizationContext": [
+        "nginx:ditto",
+        "ditto:ditto"
+      ],
+      "qos": 0
+    },
+    {
+      "address": "adaptive_twin/{{thing:id}}/messages",
+      "nota_address": "Indica il topic MQTT dove verranno pubblicati tutti i messaggi live di Ditto",
+      "topics": [
+        "_/_/things/live/messages"
+      ],
+      "nota_topics": "Indica quali tipi di messaggi di Ditto verranno pubblicati sull'address",
+      "authorizationContext": [
+        "nginx:ditto",
+        "ditto:ditto"
+      ],
+      "qos": 0
+    }
+  ]
+}

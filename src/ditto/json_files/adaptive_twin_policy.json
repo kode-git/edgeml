@@ -1,0 +1,38 @@
+{
+  "policyId": "org.eclipse.ditto:adaptive_twin_policy",
+  "entries": {
+    "owner": {
+      "subjects": {
+        "nginx:ditto": {
+          "type": "nginx basic auth user"
+        },
+        "ditto:ditto": {
+          "type": "default user"
+        }
+      },
+      "resources": {
+        "thing:/": {
+          "grant": [
+            "READ",
+            "WRITE"
+          ],
+          "revoke": []
+        },
+        "policy:/": {
+          "grant": [
+            "READ",
+            "WRITE"
+          ],
+          "revoke": []
+        },
+        "message:/": {
+          "grant": [
+            "READ",
+            "WRITE"
+          ],
+          "revoke": []
+        }
+      }
+    }
+  }
+}

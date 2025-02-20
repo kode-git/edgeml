@@ -1,0 +1,10 @@
+{
+  "topic": "org.eclipse.ditto/adaptive_twin/things/twin/commands/modify",
+  "headers": {},
+  "path": "/features/deviceResources/properties",
+  "value": {
+    "throughput": 50,
+    "currentCPU": 75,
+    "currentRAM": 60
+  }
+}

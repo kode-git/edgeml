@@ -1,0 +1,73 @@
+include:
+  - ditto/docker-compose.yml
+
+services:
+  mosquitto:
+    image: eclipse-mosquitto
+    ports:
+      - '1883:1883'
+    networks:
+      default:
+        aliases:
+          - mosquitto
+    environment:
+      - TZ=Europe/Rome
+    logging:
+      options:
+        max-size: 50m
+    volumes:
+      - mosquitto_data:/mosquitto/data
+      - mosquitto_log:/mosquitto/log
+      - ./mosquitto/config:/mosquitto/config:ro
+    healthcheck:
+      test: [ "CMD", "mosquitto_pub", "-h", "localhost", "-t", "healthcheck", "-m", "test" ]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 30s
+  dispatcher:
+    build:
+      context: .
+      dockerfile: containers/dispatcher/Dockerfile
+    volumes:
+      - usage-data:/app/data
+    restart: always
+    depends_on:
+      - mosquitto  # Ensure availability of broker before start of the dispatcher
+    ports:
+      - "8080:8080"  # Expose port 8080 for external access
+    networks:
+      default:
+        aliases:
+          - dispatcher
+
+  driver:
+    build:
+      context: .
+      dockerfile: gateway/containers/driver/Dockerfile
+    restart: always
+    deploy:
+      mode: replicated
+      replicas: 2
+    depends_on:
+      - dispatcher  # Ensure the dispatcher is up before starting the driver
+    networks:
+      default:
+        aliases:
+          - driver
+
+  model:
+    build:
+      context: .
+      dockerfile: gateway/containers/model/Dockerfile
+    restart: always
+    ports:
+      - "65432:65432"  
+      - "65433:65433"
+    networks:
+      default:
+        aliases:
+          - model
+      
+volumes:
+  usage-data:
