@@ -34,8 +34,8 @@ export class RateLimiter {
     this.brokerUrl = brokerUrl;
     this.telemetryTopic = telemetryTopic;
     this.metricTopic = metricTopic;
-    this.clientResource = new SocketClient("edgeml-model-1.edgeml_app-network", 65432);
-    this.clientThroughput = new SocketClient("edgeml-model-1.edgeml_app-network", 65433);
+    this.clientResource = new SocketClient("model", 65432);
+    this.clientThroughput = new SocketClient("model", 65433);
     this.clientResource.start();
     this.clientThroughput.start();
   }
@@ -49,7 +49,7 @@ export class RateLimiter {
     this.performanceTracker.startTracking((requestPerSec: number, BytesPerSec: number) => {
       this.outboundMessageSize = 1000; // Recalculate outbound message size if needed
       Logger.info(`Updated performance: Buffer Size: ${this.buffer.length} | Requests/s: ${requestPerSec.toFixed(2)} | Bytes/s: ${BytesPerSec.toFixed(2)}`);
-      RateLimiter.recordUsage(requestPerSec, BytesPerSec, this.buffer.length);
+      // RateLimiter.recordUsage(requestPerSec, BytesPerSec, this.buffer.length);
     });
   }
 
