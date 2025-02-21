@@ -6,7 +6,7 @@ export class SocketClient {
     private readonly port: number;
     private client: net.Socket;
 
-    constructor(host: string = "edgeml-model-1.edgeml_app-network", port: number = 65432) {
+    constructor(host: string = "model", port: number = 65432) {
         this.host = host;
         this.port = port;
         this.client = new net.Socket();

@@ -34,8 +34,8 @@ export class RateLimiter {
     this.brokerUrl = brokerUrl;
     this.telemetryTopic = telemetryTopic;
     this.metricTopic = metricTopic;
-    this.clientResource = new SocketClient("edgeml-model-1.edgeml_app-network", 65432);
-    this.clientThroughput = new SocketClient("edgeml-model-1.edgeml_app-network", 65433);
+    this.clientResource = new SocketClient("model", 65432);
+    this.clientThroughput = new SocketClient("model", 65433);
     this.clientResource.start();
     this.clientThroughput.start();
   }
