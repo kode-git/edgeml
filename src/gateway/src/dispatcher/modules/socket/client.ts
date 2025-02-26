@@ -6,7 +6,7 @@ export class SocketClient {
     private readonly port: number;
     private client: net.Socket;
 
-    constructor(host: string = "model", port: number = 65432) {
+    constructor(host: string = "model", port: number = 65414) {
         this.host = host;
         this.port = port;
         this.client = new net.Socket();

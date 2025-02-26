@@ -34,8 +34,8 @@ export class RateLimiter {
     this.brokerUrl = brokerUrl;
     this.telemetryTopic = telemetryTopic;
     this.metricTopic = metricTopic;
-    this.clientResource = new SocketClient("localhost", 65432);
-    this.clientThroughput = new SocketClient("localhost", 65433);
+    this.clientResource = new SocketClient("localhost", 65414);
+    this.clientThroughput = new SocketClient("localhost", 65415);
     this.clientResource.start();
     this.clientThroughput.start();
   }

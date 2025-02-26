@@ -1,4 +1,4 @@
-FROM node:22-slim
+FROM node:20-slim
 
 # Use build_docker.sh to build images
 
