@@ -42,8 +42,8 @@ services:
     depends_on:
       - connectivity
     ports:
-      - "65432:65432"  
-      - "65433:65433"
+      - "65414:65414"
+      - "65415:65415"
     networks:
       default:
         aliases:

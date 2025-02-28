@@ -7,6 +7,6 @@ COPY ./src/model/src ./
 COPY ./src/model/src/requirements.txt requirements.txt
 RUN pip3 install --no-cache-dir -r requirements.txt
 
-EXPOSE 65433
-EXPOSE 65432
+EXPOSE 65415
+EXPOSE 65414
 CMD ["python", "app.py"]

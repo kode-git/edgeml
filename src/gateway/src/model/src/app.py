@@ -48,7 +48,7 @@ def predict_values(features, type: Mode):
         return predicted_mps, predicted_size
 
 
-def start_model_server(host="127.0.0.1", port=65432, type=Mode.THROUGHPUT):
+def start_model_server(host="127.0.0.1", port=65414, type=Mode.THROUGHPUT):
     with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as server_socket:
         server_socket.bind((host, port))
         Logger.info(f"Server started, listening on {host}:{port}")
@@ -84,11 +84,11 @@ if __name__ == "__main__":
     Logger.info("Starting model servers")
 
     res_thread = multiprocessing.Process(
-        target=start_model_server, args=("0.0.0.0", 65432, Mode.RESOURCE)
+        target=start_model_server, args=("0.0.0.0", 65414, Mode.RESOURCE)
     )
 
     thr_thread = multiprocessing.Process(
-        target=start_model_server, args=("0.0.0.0", 65433, Mode.THROUGHPUT)
+        target=start_model_server, args=("0.0.0.0", 65415, Mode.THROUGHPUT)
     )
 
     res_thread.start()
