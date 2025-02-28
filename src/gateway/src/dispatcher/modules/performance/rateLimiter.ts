@@ -139,6 +139,13 @@ export class RateLimiter {
 
   }
 
+
+
+  calculateRAM(ram: number): number {
+    return 0
+
+  }
+
   calculateThroughput(messagePerSec: number, messageSize: number): number {
     return messagePerSec * messageSize // total bytes / amount of time (1s), the throughput is defined at seconds level
   }

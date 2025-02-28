@@ -86,7 +86,7 @@ app.listen(8090, () => {
       let data: CommandPayload = JSON.parse(message);
       process.env.MAX_RAM = data.value.properties.maxRAM + "";
       process.env.MAX_CPU = data.value.properties.maxCPU + "";
-      switch (data.value.modeML) {
+      switch (data.value.properties.modeML) {
         case "resource":
           MODE = Mode.Resource; break;
         case "throughput":
