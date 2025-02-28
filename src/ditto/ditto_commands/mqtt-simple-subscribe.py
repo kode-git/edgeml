@@ -17,7 +17,10 @@ def on_message_print(client, userdata, message):
         print(e)
 
 subscribe.callback(on_message_print,
-                   ["source/adaptive_twin/#", "adaptive_twin/#"],
+                   [
+                       # "source/adaptive_twin/#",
+                    "adaptive_twin/#"
+                    ],
                    port=1883,
                    userdata={"message_count": 0},
                    client_id="script_subscribe")
