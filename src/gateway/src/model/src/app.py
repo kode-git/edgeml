@@ -80,13 +80,17 @@ def start_model_server(host="127.0.0.1", port=65432, type=Mode.THROUGHPUT):
 
 
 if __name__ == "__main__":
+    
     Logger.info("Starting model servers")
+
     res_thread = multiprocessing.Process(
         target=start_model_server, args=("0.0.0.0", 65432, Mode.RESOURCE)
     )
+
     thr_thread = multiprocessing.Process(
         target=start_model_server, args=("0.0.0.0", 65433, Mode.THROUGHPUT)
     )
+
     res_thread.start()
     thr_thread.start()
 

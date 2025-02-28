@@ -26,7 +26,7 @@ const app = express();
 app.use(express.json());
 
 // environment variables
-const BROKER_URL = process.env.BROKER_URL ? process.env.BROKER_URL + "" : "mqtt:mosquitto:8883"
+const BROKER_URL = process.env.BROKER_URL ? process.env.BROKER_URL + "" : "mqtt:mosquitto:1883"
 const TELEMETRY_TOPIC = process.env.TELEMETRY_TOPIC ? process.env.TELEMETRY + "" : "data"
 const METRIC_TOPIC = process.env.METRIC_TOPIC ? process.env.METRIC + "" : "source/adaptive_twin/org.eclipse.ditto:adaptive_twin"
 const COMMANDS_TOPIC = process.env.COMMANDS_TOPIC ? process.env.COMMANDS + "" : "adaptive_twin/org.eclipse.ditto:adaptive_twin/events"
@@ -35,7 +35,7 @@ const COMMANDS_TOPIC = process.env.COMMANDS_TOPIC ? process.env.COMMANDS + "" : 
 // configuration for internal command client
 const config: IMqttConfig = {
   brokerUrl: BROKER_URL,
-  port: 8883,
+  port: 1883,
   topic: COMMANDS_TOPIC,
 };
 
