@@ -84,8 +84,8 @@ app.listen(8090, () => {
   mqttConsumer.start((topic: string, message: string) => {
     try {
       let data: CommandPayload = JSON.parse(message);
-      process.env.MAX_RAM = data.value.maxRAM + "";
-      process.env.MAX_CPU = data.value.maxCPU + "";
+      process.env.MAX_RAM = data.value.properties.maxRAM + "";
+      process.env.MAX_CPU = data.value.properties.maxCPU + "";
       switch (data.value.modeML) {
         case "resource":
           MODE = Mode.Resource; break;

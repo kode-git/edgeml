@@ -5,9 +5,11 @@ export interface CommandPayload {
     timestamp: string,
     topic: string,
     value: {
-        maxCPU: number,
-        modeML: string,
-        maxRAM: number
+        properties: {
+            maxCPU: number,
+            modeML: string,
+            maxRAM: number
+        }
     }
 }
 
